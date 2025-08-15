@@ -110,7 +110,7 @@ def get_downloaded_files() -> str:
     try:
         files = os.listdir(download_path)
         file_links = [
-            f'<li class="list-group-item"><a href="/downloads/{file}">{file}</a></li>'
+            f'<li class="list-group-item"><a href="/download-file/{file}" download="{file}" class="text-decoration-none"><i class="fa-solid fa-download me-2"></i>{file}</a></li>'
             for file in files
         ]
         files = (
@@ -236,6 +236,34 @@ def list_downloads_page(request: Request):
 def list_items_of_downloads_page():
     files = get_downloaded_files()
     return files
+
+
+@app.get(
+    '/download-file/{filename}',
+    tags=['Downloader'],
+    summary='Download a specific file',
+)
+def download_file(filename: str):
+    """Download a specific file from the downloads directory"""
+    import mimetypes
+    from fastapi.responses import FileResponse
+    
+    file_path = os.path.join(DOWNLOAD_DIR, filename)
+    
+    if not os.path.exists(file_path):
+        return {"error": "File not found"}
+    
+    # Determine MIME type
+    mime_type, _ = mimetypes.guess_type(filename)
+    if mime_type is None:
+        mime_type = 'application/octet-stream'
+    
+    return FileResponse(
+        path=file_path,
+        filename=filename,
+        media_type=mime_type,
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
 
 
 if __name__ == "__main__":
