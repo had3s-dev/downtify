@@ -211,17 +211,30 @@ def list_items_of_downloads_page():
 
 
 if __name__ == "__main__":
-    # Handle PORT environment variable more robustly
-    port_str = os.getenv("PORT", "8000")
     try:
-        port = int(port_str)
-    except ValueError:
-        print(f"Warning: Invalid PORT value '{port_str}', using default port 8000")
-        port = 8000
-    
-    print(f"Starting Downtify on port {port}")
-    print(f"Download directory: {DOWNLOAD_DIR}")
-    print(f"Static files mounted at: /static, /assets, /downloads")
-    print(f"Health check available at: /health")
-    
-    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
+        # Handle PORT environment variable more robustly
+        port_str = os.getenv("PORT", "8000")
+        try:
+            port = int(port_str)
+        except ValueError:
+            print(f"Warning: Invalid PORT value '{port_str}', using default port 8000")
+            port = 8000
+        
+        print(f"Starting Downtify on port {port}")
+        print(f"Download directory: {DOWNLOAD_DIR}")
+        print(f"Static files mounted at: /static, /assets, /downloads")
+        print(f"Health check available at: /health")
+        
+        # Test if directories exist
+        print(f"Checking directories...")
+        print(f"Static directory exists: {os.path.exists('static')}")
+        print(f"Templates directory exists: {os.path.exists('templates')}")
+        print(f"Assets directory exists: {os.path.exists('assets')}")
+        print(f"Download directory exists: {os.path.exists(DOWNLOAD_DIR)}")
+        
+        uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
+    except Exception as e:
+        print(f"❌ Failed to start application: {e}")
+        import traceback
+        traceback.print_exc()
+        exit(1)

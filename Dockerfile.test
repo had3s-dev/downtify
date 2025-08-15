@@ -1,0 +1,22 @@
+FROM python:3.13-alpine
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
+
+WORKDIR /app
+
+# Copy requirements
+COPY requirements-app.txt ./
+
+# Install dependencies
+RUN pip install --no-cache-dir fastapi uvicorn
+
+# Copy test file
+COPY test_minimal.py ./
+
+# Expose port
+EXPOSE $PORT
+
+# Run test app
+CMD ["python", "test_minimal.py"]
