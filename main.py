@@ -204,5 +204,13 @@ def list_items_of_downloads_page():
 
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))
+    # Handle PORT environment variable more robustly
+    port_str = os.getenv("PORT", "8000")
+    try:
+        port = int(port_str)
+    except ValueError:
+        print(f"Warning: Invalid PORT value '{port_str}', using default port 8000")
+        port = 8000
+    
+    print(f"Starting Downtify on port {port}")
     uvicorn.run(app, host="0.0.0.0", port=port)

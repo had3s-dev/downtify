@@ -28,14 +28,12 @@ COPY main.py ./
 COPY templates ./templates
 COPY assets ./assets
 COPY static ./static
-COPY start.sh ./
 
-# Create download directory for Railway storage and make start script executable
-RUN mkdir -p /data/downloads && \
-    chmod +x start.sh
+# Create download directory for Railway storage
+RUN mkdir -p /data/downloads
 
 # Expose port
 EXPOSE $PORT
 
-# Run the application
-CMD ["./start.sh"]
+# Run the application directly with python
+CMD ["python", "main.py"]
