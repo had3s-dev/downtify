@@ -13,7 +13,8 @@
     {
       "name": "downtify",
       "env": {
-        "DOWNLOAD_DIR": "/data/downloads"
+        "DOWNLOAD_DIR": "/data/downloads",
+        "FORCE_HTTPS": "true"
       }
     }
   ]

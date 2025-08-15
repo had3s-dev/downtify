@@ -2,14 +2,15 @@ import os
 from functools import lru_cache
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, Form
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import Depends, FastAPI, Form, Request
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from spotdl import Spotdl
 from spotdl.types.options import DownloaderOptions
-from starlette.requests import Request
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
 import uvicorn
 
 load_dotenv()
@@ -25,6 +26,30 @@ class Message(BaseModel):
     message: str = Field(examples=['Download sucessful'])
 
 
+class SecurityMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        # Add security headers
+        response = await call_next(request)
+        
+        # Force HTTPS in production
+        if os.getenv('RAILWAY_ENVIRONMENT') or os.getenv('FORCE_HTTPS'):
+            if request.headers.get('x-forwarded-proto') == 'http':
+                url = str(request.url)
+                url = url.replace('http://', 'https://', 1)
+                return RedirectResponse(url=url, status_code=301)
+        
+        # Add security headers
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        
+        # Add CSP header to prevent mixed content
+        csp = "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https:;"
+        response.headers['Content-Security-Policy'] = csp
+        
+        return response
+
 app = FastAPI(
     title='Downtify',
     version='0.3.2',
@@ -36,6 +61,9 @@ app = FastAPI(
     },
     terms_of_service='https://github.com/henriquesebastiao/downtify/',
 )
+
+# Add security middleware
+app.add_middleware(SecurityMiddleware)
 
 
 # Configure download directory for Railway storage
