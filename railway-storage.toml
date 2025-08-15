@@ -1,0 +1,6 @@
+[[services]]
+name = "downtify"
+
+[[services.storage]]
+name = "downloads"
+path = "/data/downloads"

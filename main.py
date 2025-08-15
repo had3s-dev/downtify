@@ -41,8 +41,8 @@ app = FastAPI(
 app.mount('/static', StaticFiles(directory='static'), name='static')
 app.mount('/assets', StaticFiles(directory='assets'), name='assets')
 
-# Configure download directory for Railway
-DOWNLOAD_DIR = os.getenv('DOWNLOAD_DIR', '/tmp/downloads')
+# Configure download directory for Railway storage
+DOWNLOAD_DIR = os.getenv('DOWNLOAD_DIR', '/data/downloads')
 if not os.path.exists(DOWNLOAD_DIR):
     os.makedirs(DOWNLOAD_DIR)
 

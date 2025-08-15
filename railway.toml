@@ -11,3 +11,7 @@ restartPolicyMaxRetries = 10
 [env]
 PYTHONUNBUFFERED = "1"
 PYTHONDONTWRITEBYTECODE = "1"
+DOWNLOAD_DIR = "/data/downloads"
+
+[[services]]
+name = "downtify"

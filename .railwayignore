@@ -10,6 +10,8 @@ pyproject.toml
 # Docker files (we'll use Dockerfile.railway)
 Dockerfile
 docker-compose.yml
+# Volume-related files (Railway uses storage service)
+railway-storage.toml
 
 # Git
 .git/

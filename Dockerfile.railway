@@ -29,8 +29,8 @@ COPY templates ./templates
 COPY assets ./assets
 COPY static ./static
 
-# Create download directory
-RUN mkdir -p /tmp/downloads
+# Create download directory for Railway storage
+RUN mkdir -p /data/downloads
 
 # Expose port
 EXPOSE $PORT
