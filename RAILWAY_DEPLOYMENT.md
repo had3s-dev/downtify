@@ -92,7 +92,7 @@ Railway automatically provisions SSL certificates for custom domains, so your si
 - Monitor your usage in the Railway dashboard
 
 ### Environment Variables
-- `PORT`: Automatically set by Railway
+- `PORT`: Automatically set by Railway and properly handled by the startup script
 - `DOWNLOAD_DIR`: Set to `/data/downloads` for Railway's persistent storage
 - `CLIENT_ID` and `CLIENT_SECRET`: Your Spotify app credentials
 
