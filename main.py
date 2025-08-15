@@ -38,13 +38,20 @@ app = FastAPI(
 )
 
 
-app.mount('/static', StaticFiles(directory='static'), name='static')
-app.mount('/assets', StaticFiles(directory='assets'), name='assets')
-
 # Configure download directory for Railway storage
 DOWNLOAD_DIR = os.getenv('DOWNLOAD_DIR', '/data/downloads')
 if not os.path.exists(DOWNLOAD_DIR):
     os.makedirs(DOWNLOAD_DIR)
+
+app.mount('/static', StaticFiles(directory='static'), name='static')
+app.mount('/assets', StaticFiles(directory='assets'), name='assets')
+
+
+@app.on_event("startup")
+async def startup_event():
+    print("🚀 Downtify application starting up...")
+    print(f"📁 Download directory: {DOWNLOAD_DIR}")
+    print(f"🌐 Application will be available on port {os.getenv('PORT', '8000')}")
 
 app.mount('/downloads', StaticFiles(directory=DOWNLOAD_DIR), name='downloads')
 templates = Jinja2Templates(directory='templates')
@@ -213,4 +220,8 @@ if __name__ == "__main__":
         port = 8000
     
     print(f"Starting Downtify on port {port}")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    print(f"Download directory: {DOWNLOAD_DIR}")
+    print(f"Static files mounted at: /static, /assets, /downloads")
+    print(f"Health check available at: /health")
+    
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")

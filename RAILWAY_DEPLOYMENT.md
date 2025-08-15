@@ -80,6 +80,16 @@ You'll need to configure your DNS provider with the records Railway provides. Ty
 
 Railway automatically provisions SSL certificates for custom domains, so your site will be accessible via HTTPS.
 
+### 7. Verify Deployment
+
+After deployment, verify your application is running:
+
+1. **Check Railway Dashboard**: Go to your project dashboard and check the deployment status
+2. **View Logs**: Click on the latest deployment to view logs
+3. **Test Health Endpoint**: Visit `https://your-app.railway.app/health` to verify the app is running
+4. **Test Main Site**: Visit your custom domain or Railway-generated URL
+5. **Check Environment Variables**: Ensure all required environment variables are set in the Railway dashboard
+
 ## Important Notes
 
 ### File Storage
@@ -104,6 +114,15 @@ Railway automatically provisions SSL certificates for custom domains, so your si
 2. **Port issues**: Railway automatically sets the `PORT` environment variable
 3. **File downloads not working**: Check that Railway storage is properly configured
 4. **Domain not working**: Ensure DNS records are properly configured and propagated
+5. **Application not starting**: 
+   - Check Railway logs for startup errors
+   - Verify the application starts with `python main.py`
+   - Test locally with `python test_startup.py`
+   - Ensure all environment variables are set correctly
+6. **Deployment stuck**: 
+   - Check if the health check endpoint `/health` is responding
+   - Verify the application is listening on the correct port
+   - Check Railway logs for any startup errors
 
 ### Logs
 - View logs in the Railway dashboard under the "Deployments" tab
