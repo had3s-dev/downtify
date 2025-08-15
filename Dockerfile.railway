@@ -1,0 +1,39 @@
+FROM python:3.13-alpine
+
+LABEL maintainer="Henrique Sebastião <contato@henriquesebastiao.com>"
+LABEL version="0.3.2"
+LABEL description="Self-hosted Spotify downloader for Railway"
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHON_COLORS=0
+
+# Railway will set PORT environment variable
+ENV PORT=8000
+
+WORKDIR /downtify
+
+# Copy requirements first for better caching
+COPY requirements-app.txt ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --root-user-action ignore -r requirements-app.txt
+
+# Download ffmpeg
+RUN spotdl --download-ffmpeg && \
+    cp /root/.spotdl/ffmpeg /downtify
+
+# Copy application files
+COPY main.py ./
+COPY templates ./templates
+COPY assets ./assets
+COPY static ./static
+
+# Create download directory
+RUN mkdir -p /tmp/downloads
+
+# Expose port
+EXPOSE $PORT
+
+# Run the application
+CMD ["python", "main.py"]

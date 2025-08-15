@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from spotdl import Spotdl
 from spotdl.types.options import DownloaderOptions
 from starlette.requests import Request
+import uvicorn
 
 load_dotenv()
 
@@ -40,15 +41,17 @@ app = FastAPI(
 app.mount('/static', StaticFiles(directory='static'), name='static')
 app.mount('/assets', StaticFiles(directory='assets'), name='assets')
 
-if not os.path.exists('/downloads'):
-    os.makedirs('/downloads')
+# Configure download directory for Railway
+DOWNLOAD_DIR = os.getenv('DOWNLOAD_DIR', '/tmp/downloads')
+if not os.path.exists(DOWNLOAD_DIR):
+    os.makedirs(DOWNLOAD_DIR)
 
-app.mount('/downloads', StaticFiles(directory='/downloads'), name='downloads')
+app.mount('/downloads', StaticFiles(directory=DOWNLOAD_DIR), name='downloads')
 templates = Jinja2Templates(directory='templates')
 
 DOWNLOADER_OPTIONS: DownloaderOptions = {
     'output': os.getenv(
-        'OUTPUT_PATH', default='/downloads/{artists} - {title}.{output-ext}'
+        'OUTPUT_PATH', default=f'{DOWNLOAD_DIR}/{{artists}} - {{title}}.{{output-ext}}'
     ),
     'ffmpeg': '/downtify/ffmpeg',
 }
@@ -68,7 +71,7 @@ def get_spotdl():
 
 
 def get_downloaded_files() -> str:
-    download_path = '/downloads'
+    download_path = DOWNLOAD_DIR
     try:
         files = os.listdir(download_path)
         file_links = [
@@ -94,6 +97,16 @@ def get_downloaded_files() -> str:
 )
 def index(request: Request):
     return templates.TemplateResponse('index.html', {'request': request})
+
+
+@app.get(
+    '/health',
+    tags=['Health'],
+    summary='Health check endpoint',
+)
+def health_check():
+    """Health check endpoint for Railway monitoring"""
+    return {"status": "healthy", "service": "downtify"}
 
 
 @app.post(
@@ -188,3 +201,8 @@ def list_downloads_page(request: Request):
 def list_items_of_downloads_page():
     files = get_downloaded_files()
     return files
+
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

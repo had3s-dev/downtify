@@ -38,6 +38,14 @@ Downtify uses SpotDL to download music, which in turn uses YouTube as a download
 
 ## Usage
 
+### Railway Deployment (Recommended for Cloud)
+
+Deploy to Railway with your custom domain `music.nexusremains.online`:
+
+1. **Quick Deploy**: [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/new?template=https://github.com/henriquesebastiao/downtify)
+
+2. **Manual Deploy**: Follow the detailed guide in [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)
+
 ### Docker CLI
 
 > [!IMPORTANT]
@@ -64,7 +72,6 @@ services:
 ```
 
 You can also set a custom port for the web interface via the `DOWNTIFY_PORT` environment variable in `docker-compose.yml`:
-
 
 ```yaml
 ports:

@@ -1,0 +1,41 @@
+# Documentation
+docs/
+mkdocs.yml
+
+# Development files
+Makefile
+uv.lock
+pyproject.toml
+
+# Docker files (we'll use Dockerfile.railway)
+Dockerfile
+docker-compose.yml
+
+# Git
+.git/
+.gitignore
+
+# Environment files
+.env
+.env.local
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
