@@ -89,6 +89,11 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
         'OUTPUT_PATH', default=f'{DOWNLOAD_DIR}/{{artists}} - {{title}}.{{output-ext}}'
     ),
     'ffmpeg': '/downtify/ffmpeg',
+    'format': 'mp3',
+    'save_file': True,
+    'preload': True,
+    'threads': 4,
+    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
 }
 
 
@@ -104,6 +109,19 @@ def get_spotdl():
         downloader_settings=DOWNLOADER_OPTIONS,
     )
 
+
+def validate_url(url: str) -> tuple[bool, str]:
+    """Validate if the URL is supported and provide helpful suggestions"""
+    url_lower = url.lower()
+    
+    if 'spotify.com' in url_lower:
+        return True, "Spotify URL detected"
+    elif 'youtube.com' in url_lower or 'youtu.be' in url_lower:
+        return True, "YouTube URL detected"
+    elif 'music.youtube.com' in url_lower:
+        return True, "YouTube Music URL detected"
+    else:
+        return False, "Please provide a Spotify, YouTube, or YouTube Music URL"
 
 def get_downloaded_files() -> str:
     download_path = DOWNLOAD_DIR
@@ -164,14 +182,55 @@ def download_web_ui(
     - `200` - Download successful.
     """
     try:
+        # Validate URL first
+        is_valid, message = validate_url(url)
+        if not is_valid:
+            return f"""
+        <div>
+            <button type="submit" class="btn btn-lg btn-light fw-bold border-white button mx-auto" id="button-download" style="display: block;"><i class="fa-solid fa-down-long"></i></button>
+            <div class="alert alert-warning mx-auto" id="success-card" style="display: none;">
+                <strong>{message}</strong>
+            </div>
+        </div>
+        """
+        
+        print(f"🔍 Searching for: {url}")
         songs = spotdlc.search([url])
+        
+        if not songs:
+            return f"""
+        <div>
+            <button type="submit" class="btn btn-lg btn-light fw-bold border-white button mx-auto" id="button-download" style="display: block;"><i class="fa-solid fa-down-long"></i></button>
+            <div class="alert alert-warning mx-auto" id="success-card" style="display: none;">
+                <strong>No songs found for the provided URL. Please check the URL and try again.</strong>
+            </div>
+        </div>
+        """
+        
+        print(f"📥 Found {len(songs)} song(s), starting download...")
         spotdlc.download_songs(songs)
+        print(f"✅ Download completed successfully!")
+        
     except Exception as error:
+        print(f"❌ Download error: {error}")
+        error_message = str(error)
+        
+        # Provide more helpful error messages
+        if "AudioProviderError" in error_message:
+            if "YT-DLP download error" in error_message:
+                error_message = "YouTube Music download failed. This might be due to region restrictions or the track not being available. Try a different song or use a Spotify URL instead."
+            else:
+                error_message = "Audio provider error. The song might not be available or there might be a network issue."
+        elif "NoSearchResultsError" in error_message:
+            error_message = "No search results found. Please check the URL and try again."
+        elif "NetworkError" in error_message:
+            error_message = "Network error. Please check your internet connection and try again."
+        
         return f"""
     <div>
         <button type="submit" class="btn btn-lg btn-light fw-bold border-white button mx-auto" id="button-download" style="display: block;"><i class="fa-solid fa-down-long"></i></button>
         <div class="alert alert-danger mx-auto" id="success-card" style="display: none;">
-            <strong>Error: {error}</strong>
+            <strong>Error: {error_message}</strong>
         </div>
     </div>
     """

@@ -52,7 +52,11 @@
         Your music along with album art, lyrics and metadata.
       </p>
       <form hx-post="/download-web/" hx-trigger="submit" hx-target="#result">
-        <input type="text" name="url" class="form-control mb-3" placeholder="Music or playlist URL" required />
+        <input type="text" name="url" class="form-control mb-3" placeholder="Spotify or YouTube Music URL" required />
+        <small class="text-muted d-block mb-3">
+          <i class="fa-solid fa-info-circle me-1"></i>
+          Supported: Spotify tracks, albums, playlists • YouTube Music URLs • YouTube URLs
+        </small>
         <div id="result">
           <div>
             <button type="submit" class="btn btn-lg btn-light fw-bold border-white button mx-auto" id="button-download"
